@@ -1,30 +1,40 @@
-package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityweatherscreen
+package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityWeatherScreen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import org.koin.androidx.compose.getViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherDetailsScreen(cityId: Int) {
+fun WeatherDetailsScreen(cityId: Int, navController: NavController) {
     val weatherDetailsViewModel: WeatherDetailsViewModel = getViewModel()
     weatherDetailsViewModel.fetchWeatherDetails(cityId)
     val weatherData by weatherDetailsViewModel.weatherData.observeAsState()
+    val cityName by weatherDetailsViewModel.cityName.observeAsState("Loading...")
+
+    TopAppBar(
+        title = { cityName?.let { Text(it) } },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+            }
+        }
+    )
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         when (weatherData) {
@@ -32,60 +42,26 @@ fun WeatherDetailsScreen(cityId: Int) {
                 CircularProgressIndicator()
             }
             else -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = "Temperature: ${weatherData?.temperature}°C",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Min Temperature: ${weatherData?.minTemperature}°C",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Max Temperature: ${weatherData?.maxTemperature}°C",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Pressure: ${weatherData?.pressure} hPa",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Humidity: ${weatherData?.humidity}%",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Description: ${weatherData?.description}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Wind Speed: ${weatherData?.windSpeed} m/s",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Wind Degree: ${weatherData?.windDegree}°",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Cloudiness: ${weatherData?.clouds}%",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Rain: ${weatherData?.rain ?: "N/A"} mm",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                val weatherDetails = listOf(
+                    "Temperature: ${weatherData?.temperature}°C",
+                    "Min-Max: ${weatherData?.minTemperature}°C - ${weatherData?.maxTemperature}°C",
+                    "Pressure: ${weatherData?.pressure} hPa",
+                    "Humidity: ${weatherData?.humidity}%",
+                    "Description: ${weatherData?.description}",
+                    "Wind Speed: ${weatherData?.windSpeed} m/s",
+                    "Wind Degree: ${weatherData?.windDegree}°",
+                    "Cloudiness: ${weatherData?.clouds}%",
+                    "Rain: ${weatherData?.rain ?: "N/A"} mm"
+                )
+
+                LazyColumn {
+                    items(weatherDetails) { detail ->
+                        ListItem(
+                            headlineContent = {
+                                Text(text = detail)
+                            }
+                        )
+                    }
                 }
             }
         }

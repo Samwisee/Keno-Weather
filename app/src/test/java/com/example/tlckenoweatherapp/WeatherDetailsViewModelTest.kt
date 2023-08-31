@@ -3,12 +3,29 @@ package com.example.tlckenoweatherapp
 import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.domain.CityData
 import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.domain.WeatherData
 import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.domain.WeatherRepository
-import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityweatherscreen.WeatherDetailsViewModel
+import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityWeatherScreen.WeatherDetailsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.Assert.assertEquals
 
+@ExperimentalCoroutinesApi
 class WeatherDetailsViewModelTest {
+
+    @Before
+    fun setup() {
+        Dispatchers.setMain(Dispatchers.Unconfined)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     private val mockWeatherData = WeatherData(
         id = 1,
@@ -32,12 +49,30 @@ class WeatherDetailsViewModelTest {
 
     private val viewModel = WeatherDetailsViewModel(mockRepository)
 
+
+    // This test checks if the ViewModel correctly fetches weather details for a given city ID and updates its LiveData object with the fetched data.
     @Test
     fun fetchWeatherDetails_callsRepository() = runBlocking {
         val cityId = 1
         val expected = mockRepository.getCityWeatherDetail(cityId)
         viewModel.fetchWeatherDetails(cityId)
         val actual = viewModel.weatherData.value
+        assertEquals(expected, actual)
+    }
+
+
+    // This test checks how the ViewModel handles errors, e.g., when the repository returns null.
+    @Test
+    fun fetchWeatherDetails_handlesError() = runBlocking {
+        val cityId = 1
+        val expected = null
+        val errorRepository = object : WeatherRepository {
+            override suspend fun getCityList(): List<CityData> = emptyList()
+            override suspend fun getCityWeatherDetail(cityId: Int): WeatherData? = null
+        }
+        val errorViewModel = WeatherDetailsViewModel(errorRepository)
+        errorViewModel.fetchWeatherDetails(cityId)
+        val actual = errorViewModel.weatherData.value
         assertEquals(expected, actual)
     }
 }

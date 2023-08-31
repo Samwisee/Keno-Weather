@@ -10,6 +10,7 @@ data class CityData(
 
 data class WeatherData(
     val id: Int,
+    var cityName: String? = null,
     val temperature: Double,
     val minTemperature: Double,
     val maxTemperature: Double,

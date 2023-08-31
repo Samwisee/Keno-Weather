@@ -1,4 +1,4 @@
-package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityscreen
+package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.citiesScreen
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
