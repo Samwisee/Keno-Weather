@@ -2,6 +2,7 @@
 package com.example.tlckenoweatherapp
 
 import android.app.Application
+import com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.utils.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 

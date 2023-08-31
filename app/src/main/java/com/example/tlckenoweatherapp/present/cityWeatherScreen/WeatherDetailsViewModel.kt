@@ -1,4 +1,4 @@
-package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityweatherscreen
+package com.example.tlckenoweatherapp.com.example.tlckenoweatherapp.present.cityWeatherScreen
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,10 +12,14 @@ class WeatherDetailsViewModel(private val repository: WeatherRepository) : ViewM
     private val _weatherData = MutableLiveData<WeatherData?>()
     val weatherData: LiveData<WeatherData?> = _weatherData
 
+    private val _cityName = MutableLiveData<String?>()
+    val cityName: LiveData<String?> = _cityName
+
     fun fetchWeatherDetails(cityId: Int) {
         viewModelScope.launch {
             val weatherDetails = repository.getCityWeatherDetail(cityId)
             _weatherData.value = weatherDetails
+            _cityName.value = weatherDetails?.cityName
         }
     }
 }
